@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stackly | Premium Asset Management</title>
+    <!-- Google Fonts for Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-dark: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.7);
+            --bg-card-hover: rgba(255, 255, 255, 1);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --border-glow: rgba(244, 114, 137, 0.3);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent-primary: #F47289;
+            --accent-secondary: #EAD2AC;
+            --gradient-text: linear-gradient(135deg, #F47289, #0f172a);
+            --font-main: 'Outfit', sans-serif;
+            --glass-blur: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: auto; background-color: var(--bg-dark); overflow-x: hidden; width: 100%; }
+        body {
+            font-family: var(--font-main);
+            background-color: transparent;
+            color: var(--text-main);
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 2; }
+
+        .section-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1.125rem;
+            max-width: 600px;
+            margin: 0 auto 4rem;
+        }
+
+        /* ----- BUTTONS ----- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 28px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            text-decoration: none;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .btn:active { transform: scale(0.95) !important; }
+
+        .btn-primary {
+            background: linear-gradient(120deg, var(--accent-primary), #FF9A9E, var(--accent-primary));
+            background-size: 200% 100%;
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 8px 20px -5px rgba(244, 114, 137, 0.4);
+            animation: gradient-sweep 4s infinite linear;
+        }
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            transform: skewX(-20deg);
+            animation: light-sweep 3s infinite ease-in-out;
+            z-index: -1;
+        }
+        .btn-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 30px -10px rgba(244, 114, 137, 0.6), 0 0 20px rgba(244, 114, 137, 0.3);
+        }
+        @keyframes gradient-sweep {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes light-sweep {
+            0% { left: -100%; }
+            20% { left: 200%; }
+            100% { left: 200%; }
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-main);
+            border: 2px solid var(--text-main);
+            box-shadow: 0 0 0 0 rgba(15, 23, 42, 0);
+            animation: pulse-border 2.5s infinite;
+        }
+        .btn-secondary:hover {
+            transform: translateY(-4px);
+            background: var(--text-main);
+            color: #fff;
+            animation: none;
+            box-shadow: 0 15px 25px rgba(15, 23, 42, 0.2);
+            border-color: var(--text-main);
+        }
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.3); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            backdrop-filter: blur(var(--glass-blur));
+            padding: 2.5rem;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+        .glass-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(244, 114, 137, 0.4);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08), inset 0 0 20px rgba(244, 114, 137, 0.05);
+        }
+
+        /* HEADER */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 9999;
+            padding: 24px 0;
+            transition: all 0.4s ease;
+        }
+        header.scrolled {
+            padding: 16px 0;
+            background: rgba(248, 250, 252, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            z-index: 1001;
+        }
+        .logo-img {
+            height: 36px;
+            width: auto;
+            object-fit: contain;
+        }
+        .nav-links {
+            display: flex;
+            gap: 40px;
+        }
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent-primary);
+            transition: width 0.3s ease;
+        }
+        .nav-links a:hover {
+            color: var(--text-main);
+        }
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        .nav-actions {
+            display: flex;
+            gap: 16px;
+        }
+        .mobile-menu-btn {
+            display: none;
+            cursor: pointer;
+            z-index: 1001;
+            color: var(--text-main);
+        }
+
+        .mobile-nav-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(248, 250, 252, 0.98);
+            backdrop-filter: blur(15px);
+            z-index: 9998;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            transform: translateY(-100%);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .mobile-nav-overlay.active {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .mobile-nav-overlay a {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: color 0.3s;
+        }
+        .mobile-nav-overlay a:hover {
+            color: var(--accent-primary);
+        }
+
+        /* HERO */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-top: 80px;
+        }
+        .hero-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 1;
+            opacity: 0.6;
+            animation: float 8s infinite ease-in-out alternate;
+            pointer-events: none;
+        }
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: rgba(244, 114, 137, 0.35);
+            top: -10%;
+            left: -10%;
+        }
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: rgba(234, 210, 172, 0.4);
+            bottom: 5%;
+            right: -5%;
+            animation-delay: -4s;
+        }
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(80px, -40px) scale(1.1); }
+        }
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .hero-content {
+            text-align: center;
+            max-width: 900px;
+            z-index: 2;
+        }
+        .hero h1 {
+            font-size: 5.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            letter-spacing: -2px;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 48px;
+            font-weight: 400;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .hero-cta {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+        }
+
+        /* ASSETS GRID */
+        .assets {
+            padding: 10rem 0;
+            background: var(--bg-dark);
+            position: relative;
+            z-index: 2;
+        }
+        .assets-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+        .asset-card {
+            text-align: center;
+            padding: 4rem 2rem;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            transition: border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+        .asset-card:hover {
+            border-color: var(--accent-primary) !important;
+            box-shadow: 0 15px 40px rgba(244, 114, 137, 0.15) !important;
+        }
+        .asset-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+            background: transparent;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-primary);
+            border: 1px solid rgba(244, 114, 137, 0.3);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .asset-card:hover .asset-icon {
+            background: rgba(244, 114, 137, 0.15);
+            transform: translateZ(30px) scale(1.1);
+            box-shadow: 0 0 20px rgba(244, 114, 137, 0.3);
+        }
+        .asset-card h3 {
+            font-weight: 600;
+            margin-bottom: 12px;
+            transition: transform 0.5s;
+        }
+        .asset-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: transform 0.5s;
+        }
+        .asset-card:hover h3 { transform: translateZ(20px); }
+        .asset-card:hover p { transform: translateZ(10px); }
+
+        /* SPLIT SECTION */
+        .split-section {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+            padding: 8rem 0;
+            position: relative;
+            z-index: 2;
+        }
+        .split-content { flex: 1; }
+        .split-image { flex: 1; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .split-image img { width: 100%; height: auto; display: block; }
+
+        /* GLOBAL MARKET ACCESS */
+        .global-market {
+            padding: 6rem 0;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* TESTIMONIALS MARQUEE (reuse) */
+        .testimonials {
+            padding: 8rem 0;
+            background: #f1f5f9;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .marquee-wrapper {
+            position: relative;
+            display: flex;
+            width: 100%;
+            overflow: hidden;
+        }
+        .marquee {
+            display: flex;
+            white-space: nowrap;
+            animation: marquee 40s linear infinite;
+        }
+        .marquee-item {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 4rem;
+            gap: 2rem;
+        }
+        .marquee-quote {
+            font-size: 2.5rem;
+            font-weight: 400;
+            color: var(--text-main);
+            font-style: italic;
+        }
+        .marquee-author {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* FOOTER */
+        footer {
+            background: #f1f5f9;
+            padding: 6rem 0 2rem;
+            border-top: 1px solid var(--border-color);
+            position: relative;
+            z-index: 2;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem;
+            margin-bottom: 4rem;
+        }
+        .footer-about p {
+            color: var(--text-muted);
+            margin-top: 1.5rem;
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+        .social-links {
+            display: flex;
+            gap: 16px;
+        }
+        .social-link {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0f172a;
+            text-decoration: none;
+            transition: all 0.3s;
+            background: transparent;
+            border-radius: 50%;
+        }
+        .social-link:hover {
+            color: #F47289;
+            background: rgba(244, 114, 137, 0.15);
+        }
+        .footer-links h4 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+        .footer-links ul { list-style: none; }
+        .footer-links li { margin-bottom: 1rem; }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+        .footer-links a:hover { color: var(--accent-primary); }
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* ===== NEW SECTIONS STYLES (6 sections) ===== */
+
+        /* 1. Why Stackly */
+        .why-stackly {
+            padding: 6rem 0 8rem;
+            position: relative;
+            z-index: 2;
+        }
+        .value-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        .value-card {
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+            border-radius: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+        }
+        .value-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(244, 114, 137, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            background: var(--bg-card-hover);
+        }
+        .value-card .icon-wrap {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1.5rem;
+            border-radius: 50%;
+            background: rgba(244, 114, 137, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-primary);
+            transition: all 0.4s;
+        }
+        .value-card:hover .icon-wrap {
+            background: rgba(244, 114, 137, 0.18);
+            transform: scale(1.1);
+        }
+        .value-card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+        .value-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 400;
+        }
+
+        /* 2. Platform Dashboard */
+        .platform-dashboard {
+            padding: 6rem 0 8rem;
+            position: relative;
+            z-index: 2;
+            background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.6));
+        }
+        .dashboard-mockup {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.15), 0 0 40px rgba(244, 114, 137, 0.06);
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            padding: 2rem;
+        }
+        .dashboard-mockup img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+        }
+        .dashboard-stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .dash-stat {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+        .dash-stat .num {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+        .dash-stat .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* 3. Investment Strategies */
+        .strategies {
+            padding: 8rem 0;
+            position: relative;
+            z-index: 2;
+            background: var(--bg-dark);
+        }
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        .strategy-card {
+            padding: 2rem 1.5rem;
+            border-radius: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .strategy-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .strategy-card:hover::before { opacity: 1; }
+        .strategy-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(244, 114, 137, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+        .strategy-card .badge {
+            display: inline-block;
+            padding: 4px 16px;
+            border-radius: 100px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(244, 114, 137, 0.1);
+            color: var(--accent-primary);
+            margin-bottom: 1rem;
+        }
+        .strategy-card h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .strategy-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+        .strategy-card .risk {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .strategy-card .risk .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot.low { background: #4ade80; }
+        .dot.medium { background: #facc15; }
+        .dot.high { background: #f87171; }
+
+        /* 4. Stackly vs Traditional */
+        .comparison {
+            padding: 8rem 0;
+            position: relative;
+            z-index: 2;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), transparent);
+        }
+        .comparison-table-wrap {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1.25rem 2rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .comparison-table th {
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: rgba(248, 250, 252, 0.5);
+        }
+        .comparison-table tr:last-child td { border-bottom: none; }
+        .comparison-table .feature-name { font-weight: 600; }
+        .comparison-table .check { color: var(--accent-primary); }
+        .comparison-table .x { color: #94a3b8; }
+        .comparison-table .highlight-row { background: rgba(244, 114, 137, 0.04); }
+
+        /* 5. Latest Insights */
+        .insights {
+            padding: 8rem 0;
+            position: relative;
+            z-index: 2;
+            background: var(--bg-dark);
+        }
+        .insight-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        .insight-card {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+        }
+        .insight-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(244, 114, 137, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            background: var(--bg-card-hover);
+        }
+        .insight-card .img-wrap {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--text-muted);
+        }
+        .insight-card .img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .insight-card .body { padding: 1.5rem; }
+        .insight-card .body .tag {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 100px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(244, 114, 137, 0.1);
+            color: var(--accent-primary);
+            margin-bottom: 0.75rem;
+        }
+        .insight-card .body h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+        .insight-card .body p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+        }
+        .insight-card .body .meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .insight-card .body .meta .dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            display: inline-block;
+        }
+
+        /* 6. Trusted Partners */
+        .partners {
+            padding: 6rem 0 8rem;
+            position: relative;
+            z-index: 2;
+            background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.6));
+        }
+        .partner-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 2rem;
+            align-items: center;
+            margin-top: 3rem;
+        }
+        .partner-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            transition: all 0.4s;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            min-height: 80px;
+        }
+        .partner-item:hover {
+            border-color: rgba(244, 114, 137, 0.3);
+            background: var(--bg-card-hover);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            transform: scale(1.02);
+            color: var(--text-main);
+        }
+        .partner-item .logo-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .partner-item .logo-placeholder i {
+            font-size: 2rem;
+            color: var(--accent-primary);
+            opacity: 0.6;
+        }
+        .partner-item .logo-placeholder span {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .value-grid { grid-template-columns: repeat(2, 1fr); }
+            .strategy-grid { grid-template-columns: repeat(2, 1fr); }
+            .insight-grid { grid-template-columns: repeat(2, 1fr); }
+            .partner-grid { grid-template-columns: repeat(3, 1fr); }
+            .dashboard-stats-row { grid-template-columns: repeat(2, 1fr); }
+            .hero h1 { font-size: 4rem; }
+            .section-title { font-size: 3rem; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+            .assets-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links, .nav-actions { display: none; }
+            .mobile-menu-btn { display: block; }
+            .hero { padding-top: 120px; text-align: center; }
+            .hero h1 { font-size: 2.8rem; letter-spacing: -1px; }
+            .hero p { font-size: 1.1rem; padding: 0 1rem; }
+            .hero-cta { flex-direction: column; width: 100%; padding: 0 2rem; }
+            .hero-cta .btn { width: 100%; }
+            .value-grid { grid-template-columns: 1fr; }
+            .strategy-grid { grid-template-columns: 1fr; }
+            .insight-grid { grid-template-columns: 1fr; }
+            .partner-grid { grid-template-columns: repeat(2, 1fr); }
+            .dashboard-stats-row { grid-template-columns: 1fr; }
+            .assets-grid { grid-template-columns: 1fr; }
+            .split-section { flex-direction: column; }
+            .split-content { text-align: center; }
+            .section-title { font-size: 2.5rem; }
+            .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .testimonials { padding: 4rem 0; }
+            .features, .strategies, .comparison, .insights { padding: 5rem 0; }
+            .why-stackly, .platform-dashboard, .partners { padding: 4rem 0; }
+            .comparison-table th, .comparison-table td {
+                padding: 0.75rem 1rem;
+                font-size: 0.8rem;
+            }
+            .comparison-table-wrap { overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Three.js Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- Mobile Navigation Overlay -->
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay">
+        <a href="index.html">Home</a>
+        <a href="features.html">Features</a>
+        <a href="assets.html">Assets</a>
+        <a href="testimonials.html">Testimonials</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="login.html" class="btn btn-secondary">Log In</a>
+        <a href="signup.html" class="btn btn-primary">Get Started</a>
+    </div>
+
+    <!-- Header -->
+    <header id="header">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <img src="logo_trimmed.webp" alt="Stackly Logo" class="logo-img">
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="features.html">Features</a>
+                <a href="assets.html">Assets</a>
+                <a href="testimonials.html">Testimonials</a>
+                <a href="pricing.html">Pricing</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="login.html" class="btn btn-secondary">Log In</a>
+                <a href="signup.html" class="btn btn-primary">Get Started</a>
+            </div>
+            <div class="mobile-menu-btn" id="mobile-menu-btn">
+                <i data-lucide="menu" size="28"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero" style="min-height: 60vh;">
+        <div class="hero-orb orb-2"></div>
+        <div class="container" style="text-align: center;">
+            <div class="hero-content g-fade-up">
+                <h1 style="font-size: 4.5rem; margin-bottom: 24px;">Limitless <span style="background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Coverage</span></h1>
+                <p>From traditional equities to decentralized finance, track your entire net worth in one unified dashboard.</p>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Existing: Asset Classes -->
+    <section id="assets" class="assets" style="padding-top: 4rem;">
+        <div class="container">
+            <h2 class="section-title g-fade-up">Boundless Scope.</h2>
+            <p class="section-subtitle g-fade-up">Connect your wallets, exchanges, and brokerages. Track everything seamlessly.</p>
+            <div class="assets-grid">
+                <div class="glass-card asset-card g-fade-up">
+                    <div class="asset-icon"><i data-lucide="bitcoin" size="32"></i></div>
+                    <h3>Cryptocurrency</h3>
+                    <p>Support for 10,000+ coins and wallets.</p>
+                </div>
+                <div class="glass-card asset-card g-fade-up">
+                    <div class="asset-icon"><i data-lucide="trending-up" size="32"></i></div>
+                    <h3>Equities</h3>
+                    <p>Direct integration with major global brokerages.</p>
+                </div>
+                <div class="glass-card asset-card g-fade-up">
+                    <div class="asset-icon"><i data-lucide="home" size="32"></i></div>
+                    <h3>Real Estate</h3>
+                    <p>Live property valuations across global markets.</p>
+                </div>
+                <div class="glass-card asset-card g-fade-up">
+                    <div class="asset-icon"><i data-lucide="gem" size="32"></i></div>
+                    <h3>Alternatives</h3>
+                    <p>Track art, private equity, and precious metals.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Split sections (existing) -->
+    <section class="container split-section">
+        <div class="split-image g-fade-up"><img src="feature_global.webp" alt="Crypto"></div>
+        <div class="split-content g-fade-up" style="padding-left: 2rem;">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Crypto & DeFi Native</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Automatically sync your wallets across Ethereum, Solana, and 50+ other networks. Track staking yields, LP tokens, and NFTs with sub-second latency.</p>
+            <a href="signup.html" class="btn btn-secondary">Connect Wallet</a>
+        </div>
+    </section>
+
+    <section class="container split-section" style="padding-top: 0;">
+        <div class="split-content g-fade-up" style="padding-right: 2rem;">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Live Real Estate Valuations</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Powered by global real estate APIs, Stackly automatically updates the value of your physical properties daily.</p>
+            <a href="signup.html" class="btn btn-secondary">Add Property</a>
+        </div>
+        <div class="split-image g-fade-up"><img src="feature_security.webp" alt="Real Estate" style="filter: hue-rotate(90deg);"></div>
+    </section>
+
+
+
+    <!-- Global Market Access (existing) -->
+    <section class="container global-market">
+        <h2 class="section-title g-fade-up" style="font-size: 2.5rem;">Global Market Access</h2>
+        <p class="section-subtitle g-fade-up">Direct integrations with over 10,000 global brokerages and banks.</p>
+        <div style="background: rgba(255,255,255,0.5); border: 1px solid var(--border-color); border-radius: 12px; padding: 4rem; backdrop-filter: blur(10px);" class="g-fade-up">
+            <h1 style="font-size: 6rem; color: var(--accent-primary); line-height: 1;">100+</h1>
+            <h3 style="text-transform: uppercase; letter-spacing: 2px;">Countries Supported</h3>
+        </div>
+    </section>
+
+
+
+
+
+    <!-- ===== NEW UNIQUE SECTION 5: Private Equity & Alternatives ===== -->
+    <section class="private-equity" style="padding: 8rem 0; background: var(--bg-dark); position: relative;">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 4rem;">
+                <h2 class="section-title g-fade-up">Private Equity & Alternatives</h2>
+                <p class="section-subtitle g-fade-up" style="max-width: 600px; margin: 0 auto;">Track illiquid assets, VC investments, and angel portfolios with custom valuation models and lock-up period tracking.</p>
+            </div>
+            <div class="bento-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="bento-card g-fade-up" style="grid-column: span 2; background: #0f172a; border-color: #1e293b;">
+                    <div style="padding: 2rem;">
+                        <h3 style="color: white; margin-bottom: 1rem;">Startup Portfolio</h3>
+                        <div style="display: flex; gap: 1rem; align-items: flex-end; height: 150px; margin-bottom: 2rem; border-bottom: 1px solid #1e293b; padding-bottom: 1rem;">
+                            <div style="width: 20%; background: var(--accent-primary); height: 40%; border-radius: 4px;"></div>
+                            <div style="width: 20%; background: var(--accent-secondary); height: 60%; border-radius: 4px;"></div>
+                            <div style="width: 20%; background: #4ade80; height: 90%; border-radius: 4px;"></div>
+                            <div style="width: 20%; background: #60a5fa; height: 100%; border-radius: 4px;"></div>
+                        </div>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Automated internal rate of return (IRR) calculations and multiple-on-invested-capital (MOIC) tracking.</p>
+                    </div>
+                </div>
+                <div class="bento-card g-fade-up" style="background: #0f172a; border-color: #1e293b; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                    <i data-lucide="lock" size="48" style="color: var(--accent-primary); margin-bottom: 1rem;"></i>
+                    <h3 style="color: white; margin-bottom: 0.5rem;">Liquidity Tracking</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Monitor lock-up periods and upcoming liquidity events.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== NEW UNIQUE SECTION 6: Unified Asset Analytics ===== -->
+    <section class="asset-analytics" style="padding: 8rem 0; position: relative;">
+        <div class="container">
+            <div class="split-section" style="display: flex; gap: 4rem; align-items: center; flex-direction: row-reverse; flex-wrap: wrap;">
+                <div class="split-image g-scale-up" style="flex: 1; min-width: 300px;">
+                    <img src="feature_analytics.webp" alt="Cross-Asset Analytics" style="border-radius: 16px; box-shadow: 0 30px 60px rgba(0,0,0,0.15); border: 1px solid var(--border-color);" />
+                </div>
+                <div class="split-content g-fade-up" style="flex: 1; min-width: 300px;">
+                    <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Cross-Asset Correlation</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">Understand how your crypto holdings interact with your tech stocks. Stackly's advanced correlation matrix helps you identify hidden risks across asset classes before they impact your net worth.</p>
+                    <ul style="list-style: none;">
+                        <li style="margin-bottom: 1rem; display: flex; gap: 10px;"><i data-lucide="check" style="color:var(--accent-primary);"></i> Risk overlay maps</li>
+                        <li style="margin-bottom: 1rem; display: flex; gap: 10px;"><i data-lucide="check" style="color:var(--accent-primary);"></i> Sector concentration alerts</li>
+                        <li style="margin-bottom: 1rem; display: flex; gap: 10px;"><i data-lucide="check" style="color:var(--accent-primary);"></i> Drawdown forecasting</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="hero" style="min-height: 50vh; padding: 8rem 0; text-align: center;">
+        <div class="container">
+            <h2 class="section-title g-fade-up">Ready to elevate your wealth management?</h2>
+            <p class="section-subtitle g-fade-up">Join thousands of elite investors using Stackly today.</p>
+            <div class="g-fade-up">
+                <a href="signup.html" class="btn btn-primary">Start Your Free Trial</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <a href="index.html" class="logo">
+                        <img src="logo_trimmed.webp" alt="Stackly Logo" class="logo-img">
+                    </a>
+                    <p>The ultimate command center for your wealth. Built with uncompromising precision and elegance.</p>
+                    <div class="social-links">
+                        <a href="404.html" class="social-link">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                        </a>
+                        <a href="404.html" class="social-link">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                            </svg>
+                        </a>
+                        <a href="404.html" class="social-link">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="features.html">Features</a></li>
+                        <li><a href="assets.html">Assets</a></li>
+                        <li><a href="testimonials.html">Testimonials</a></li>
+                        <li><a href="pricing.html">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="404.html">API Documentation</a></li>
+                        <li><a href="404.html">Help Center</a></li>
+                        <li><a href="404.html">Taxes Guide</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="404.html">About Us</a></li>
+                        <li><a href="404.html">Contact</a></li>
+                        <li><a href="404.html">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2026 Stackly Inc. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <script>
+        lucide.createIcons();
+
+        // Mobile menu
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileNavOverlay = document.getElementById('mobile-nav-overlay');
+        let isMenuOpen = false;
+
+        mobileMenuBtn.addEventListener('click', () => {
+            isMenuOpen = !isMenuOpen;
+            if (isMenuOpen) {
+                mobileNavOverlay.classList.add('active');
+                mobileMenuBtn.innerHTML = '<i data-lucide="x" size="28"></i>';
+                document.body.style.overflow = 'hidden';
+            } else {
+                mobileNavOverlay.classList.remove('active');
+                mobileMenuBtn.innerHTML = '<i data-lucide="menu" size="28"></i>';
+                document.body.style.overflow = '';
+            }
+            lucide.createIcons();
+        });
+
+        document.querySelectorAll('.mobile-nav-overlay a').forEach(link => {
+            link.addEventListener('click', () => {
+                isMenuOpen = false;
+                mobileNavOverlay.classList.remove('active');
+                mobileMenuBtn.innerHTML = '<i data-lucide="menu" size="28"></i>';
+                document.body.style.overflow = '';
+                lucide.createIcons();
+            });
+        });
+
+        // Header scroll
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // GSAP
+        gsap.registerPlugin(ScrollTrigger);
+
+        gsap.utils.toArray('.g-fade-up').forEach(el => {
+            gsap.fromTo(el, { opacity: 0, y: 40 }, {
+                scrollTrigger: { trigger: el, start: "top 85%" },
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: "power3.out",
+                stagger: 0.2
+            });
+        });
+
+        gsap.utils.toArray('.g-scale-up').forEach(el => {
+            gsap.fromTo(el, { opacity: 0, scale: 0.92, y: 40 }, {
+                scrollTrigger: { trigger: el, start: "top 80%" },
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                duration: 1.4,
+                ease: "expo.out"
+            });
+        });
+
+        // Three.js
+        const initThreeJS = () => {
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0xf8fafc, 0.001);
+
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 1200;
+            const posArray = new Float32Array(particlesCount * 3);
+            for (let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 20;
+            }
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.06,
+                color: 0xF47289,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.NormalBlending
+            });
+
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+
+            camera.position.z = 5;
+
+            let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
+            const windowHalfX = window.innerWidth / 2;
+            const windowHalfY = window.innerHeight / 2;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX - windowHalfX) * 2;
+                mouseY = (e.clientY - windowHalfY) * 2;
+            });
+
+            document.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 0) {
+                    mouseX = (e.touches[0].clientX - windowHalfX) * 2;
+                    mouseY = (e.touches[0].clientY - windowHalfY) * 2;
+                }
+            });
+
+            const clock = new THREE.Clock();
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+                const elapsed = clock.getElapsedTime();
+
+                targetX = mouseX * 0.001;
+                targetY = mouseY * 0.001;
+
+                particlesMesh.rotation.y += 0.002;
+                particlesMesh.rotation.x += 0.001;
+
+                particlesMesh.rotation.y += 0.05 * (targetX - particlesMesh.rotation.y);
+                particlesMesh.rotation.x += 0.05 * (targetY - particlesMesh.rotation.x);
+
+                particlesMesh.position.y = Math.sin(elapsed * 0.8) * 0.4;
+                particlesMesh.position.x = Math.cos(elapsed * 0.5) * 0.2;
+
+                renderer.render(scene, camera);
+            };
+
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        };
+
+        initThreeJS();
+
+        // 3D Tilt for asset cards
+        if (window.innerWidth > 768) {
+            document.querySelectorAll('.asset-card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -10;
+                    const rotateY = ((x - centerX) / centerX) * 10;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
+                    card.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+                });
+                card.addEventListener('mouseenter', () => {
+                    card.style.transition = 'none';
+                });
+            });
+        }
+    </script>
+</body>
+</html>

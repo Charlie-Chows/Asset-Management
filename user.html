@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard | Stackly</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent-primary: #F47289;
+            --font-main: 'Outfit', sans-serif;
+            --gradient-text: linear-gradient(135deg, #F47289, #0f172a);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: #ffffff;
+            border-right: 1px solid #e2e8f0;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            z-index: 50;
+            transition: transform 0.3s ease;
+        }
+        .sidebar-logo {
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .sidebar-logo img {
+            height: 32px;
+        }
+        .close-sidebar {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .nav-menu {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            overflow-y: auto;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .nav-item:hover {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+        .nav-item.active {
+            background: rgba(244, 114, 137, 0.1);
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #ef4444;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+        .logout-btn:hover {
+            background: #fef2f2;
+        }
+
+        /* Main Content Styles */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .top-header {
+            height: 80px;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            overflow: hidden;
+        }
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+        .ticker-wrapper {
+            background: #f8fafc;
+            padding: 6px 16px;
+            border-radius: 100px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+        }
+        .cool-ticker {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            white-space: nowrap;
+            font-weight: 600;
+            font-size: 0.9rem;
+            animation: marquee 20s linear infinite;
+        }
+        .cool-ticker span { display: inline-flex; align-items: center; gap: 4px; }
+        .cool-ticker .up { color: #22c55e; }
+        .cool-ticker .down { color: #ef4444; }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), #EAD2AC);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        /* Tab Panels */
+        .tab-panel {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .tab-panel.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Dashboard Components */
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: #ffffff;
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+        .stat-title {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .positive { color: #22c55e; }
+        .negative { color: #ef4444; }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .chart-card {
+            background: #ffffff;
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+        .chart-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        /* Tables & Lists */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        .data-table th {
+            padding: 1rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        .item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            font-family: var(--font-main);
+        }
+        .btn {
+            padding: 10px 20px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn-outline {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 992px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                overflow-x: hidden;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .charts-container {
+                grid-template-columns: 1fr !important;
+            }
+            .sidebar {
+                position: fixed;
+                height: 100vh;
+                transform: translateX(-100%);
+                box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .close-sidebar {
+                display: block;
+            }
+            .hamburger {
+                display: block;
+            }
+            .top-header {
+                padding: 0 1.5rem;
+            }
+            .main-content {
+                padding: 1.5rem;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .cool-ticker, .ticker-wrapper {
+                display: none; /* Hide ticker on very small screens to save space */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <a href="index.html"><img src="logo_trimmed.webp" alt="Stackly Logo"></a>
+            <button class="close-sidebar" id="close-sidebar"><i data-lucide="x"></i></button>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item active" onclick="switchTab('overview')">
+                <i data-lucide="layout-dashboard"></i> Overview
+            </div>
+            <div class="nav-item" onclick="switchTab('portfolio')">
+                <i data-lucide="pie-chart"></i> Portfolio
+            </div>
+            <div class="nav-item" onclick="switchTab('transactions')">
+                <i data-lucide="arrow-right-left"></i> Transactions
+            </div>
+            <div class="nav-item" onclick="switchTab('reports')">
+                <i data-lucide="file-text"></i> Tax Reports
+            </div>
+            <div class="nav-item" onclick="switchTab('settings')">
+                <i data-lucide="settings"></i> Settings
+            </div>
+        </div>
+        <a href="index.html" class="logout-btn" onclick="localStorage.removeItem('stackly_user_name')">
+            <i data-lucide="log-out"></i> Log Out
+        </a>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <header class="top-header">
+            <div class="header-left">
+                <button class="hamburger" id="hamburger"><i data-lucide="menu"></i></button>
+                <div class="ticker-wrapper" style="overflow: hidden; max-width: 400px; mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);">
+                    <div class="cool-ticker">
+                        <span>BTC <span class="up"><i data-lucide="trending-up" size="14"></i> $64,230</span></span>
+                        <span>ETH <span class="up"><i data-lucide="trending-up" size="14"></i> $3,450</span></span>
+                        <span>SPY <span class="down"><i data-lucide="trending-down" size="14"></i> $512.20</span></span>
+                        <span>AAPL <span class="up"><i data-lucide="trending-up" size="14"></i> $189.50</span></span>
+                        <span>TSLA <span class="down"><i data-lucide="trending-down" size="14"></i> $175.30</span></span>
+                        <span>BTC <span class="up"><i data-lucide="trending-up" size="14"></i> $64,230</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="user-profile">
+                <div class="avatar" id="user-avatar">U</div>
+                <span style="font-weight: 600; display: none;" class="desktop-name" id="user-name">User</span>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- TAB 1: Overview -->
+            <div id="overview" class="tab-panel active">
+                <h1 class="page-title">Welcome back, <span id="greeting-name">User</span>!</h1>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">Total Balance</div>
+                        <div class="stat-value">$1,284,500.00</div>
+                        <div class="stat-change positive"><i data-lucide="trending-up" size="16"></i> +4.2% this month</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Unrealized Gains</div>
+                        <div class="stat-value">$142,300.50</div>
+                        <div class="stat-change positive"><i data-lucide="trending-up" size="16"></i> +1.1% today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Cash Yield</div>
+                        <div class="stat-value">5.25%</div>
+                        <div class="stat-change" style="color: var(--text-muted);"><i data-lucide="minus" size="16"></i> Unchanged</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Available Cash</div>
+                        <div class="stat-value">$45,200.00</div>
+                        <div class="stat-change positive"><i data-lucide="trending-up" size="16"></i> Dividend Received</div>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>Performance Overview (YTD)</h3>
+                        <div style="position: relative; width: 100%; height: 250px;">
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Asset Allocation</h3>
+                        <div style="position: relative; width: 100%; height: 250px;">
+                            <canvas id="allocationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Recent Activity</h3>
+                    <div class="list-item">
+                        <div class="item-left">
+                            <div class="icon-box"><i data-lucide="arrow-down-right" style="color: #22c55e;"></i></div>
+                            <div>
+                                <div style="font-weight: 600;">Monthly Dividend</div>
+                                <div style="font-size: 0.85rem; color: var(--text-muted);">Vanguard S&P 500</div>
+                            </div>
+                        </div>
+                        <div style="text-align: right; font-weight: 600; color: #22c55e;">+$452.20</div>
+                    </div>
+                    <div class="list-item">
+                        <div class="item-left">
+                            <div class="icon-box"><i data-lucide="arrow-up-right" style="color: #ef4444;"></i></div>
+                            <div>
+                                <div style="font-weight: 600;">Asset Purchase</div>
+                                <div style="font-size: 0.85rem; color: var(--text-muted);">Bought 1.5 ETH</div>
+                            </div>
+                        </div>
+                        <div style="text-align: right; font-weight: 600; color: #ef4444;">-$4,200.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: Portfolio -->
+            <div id="portfolio" class="tab-panel">
+                <h1 class="page-title">Portfolio Breakdown</h1>
+                
+                <div class="stats-grid">
+                    <div class="stat-card" style="border-left: 4px solid #3b82f6;">
+                        <div class="stat-title">Real Estate</div>
+                        <div class="stat-value">$850,000</div>
+                        <div class="stat-change positive">66% of portfolio</div>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid #F47289;">
+                        <div class="stat-title">Crypto Assets</div>
+                        <div class="stat-value">$240,500</div>
+                        <div class="stat-change positive">19% of portfolio</div>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid #10b981;">
+                        <div class="stat-title">Equities</div>
+                        <div class="stat-value">$194,000</div>
+                        <div class="stat-change positive">15% of portfolio</div>
+                    </div>
+                </div>
+
+                <div class="chart-card" style="margin-bottom: 2rem;">
+                    <h3>Historical Performance</h3>
+                    <div style="position: relative; width: 100%; height: 200px;">
+                        <canvas id="historicalChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Top Holdings</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Asset</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>NYC Condo</strong> (REIT)</td>
+                                <td>2,000 shares</td>
+                                <td>$150.00</td>
+                                <td>$300,000.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bitcoin</strong> (BTC)</td>
+                                <td>2.5</td>
+                                <td>$64,200.00</td>
+                                <td>$160,500.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Vanguard S&P 500</strong> (VOO)</td>
+                                <td>300 shares</td>
+                                <td>$450.25</td>
+                                <td>$135,075.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ethereum</strong> (ETH)</td>
+                                <td>15.0</td>
+                                <td>$3,450.00</td>
+                                <td>$51,750.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: Transactions -->
+            <div id="transactions" class="tab-panel">
+                <h1 class="page-title">Transaction History</h1>
+                
+                <div class="charts-container" style="grid-template-columns: 1fr 1fr 1fr;">
+                    <div class="stat-card">
+                        <div class="stat-title">Inflow (30 Days)</div>
+                        <div class="stat-value" style="color: #22c55e;">+$12,450</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Outflow (30 Days)</div>
+                        <div class="stat-value" style="color: #ef4444;">-$4,200</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Net Cash Flow</div>
+                        <div class="stat-value">+$8,250</div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3>All Transactions</h3>
+                        <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.85rem;"><i data-lucide="filter" size="14"></i> Filter</button>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th style="text-align: right;">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Jul 28, 2026</td>
+                                    <td><strong>Dividend - VOO</strong></td>
+                                    <td>Income</td>
+                                    <td><span style="color: #22c55e; background: rgba(34,197,94,0.1); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Completed</span></td>
+                                    <td style="text-align: right; color: #22c55e;">+$452.20</td>
+                                </tr>
+                                <tr>
+                                    <td>Jul 25, 2026</td>
+                                    <td><strong>Bought 1.5 ETH</strong></td>
+                                    <td>Investment</td>
+                                    <td><span style="color: #22c55e; background: rgba(34,197,94,0.1); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Completed</span></td>
+                                    <td style="text-align: right;">-$4,200.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Jul 20, 2026</td>
+                                    <td><strong>Deposit from Chase</strong></td>
+                                    <td>Transfer</td>
+                                    <td><span style="color: #22c55e; background: rgba(34,197,94,0.1); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Completed</span></td>
+                                    <td style="text-align: right; color: #22c55e;">+$10,000.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Jul 15, 2026</td>
+                                    <td><strong>Platform Fee</strong></td>
+                                    <td>Fees</td>
+                                    <td><span style="color: #22c55e; background: rgba(34,197,94,0.1); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Completed</span></td>
+                                    <td style="text-align: right;">-$15.00</td>
+                                </tr>
+                                <tr>
+                                    <td>Jul 01, 2026</td>
+                                    <td><strong>Rental Income - NYC Condo</strong></td>
+                                    <td>Income</td>
+                                    <td><span style="color: #22c55e; background: rgba(34,197,94,0.1); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">Completed</span></td>
+                                    <td style="text-align: right; color: #22c55e;">+$2,800.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: Reports -->
+            <div id="reports" class="tab-panel">
+                <h1 class="page-title">Tax & Reports</h1>
+                
+                <div class="charts-container">
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--accent-primary), #ff9a9e); color: white;">
+                        <div class="stat-title" style="color: rgba(255,255,255,0.8);">Estimated Tax Savings</div>
+                        <div class="stat-value" style="color: white;">$12,450</div>
+                        <p style="font-size: 0.85rem; margin-top: 0.5rem;">Via automated harvesting this year.</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Short Term Capital Gains</div>
+                        <div class="stat-value">$4,200</div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Estimated liability: $924</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Long Term Capital Gains</div>
+                        <div class="stat-value">$18,500</div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Estimated liability: $2,775</p>
+                    </div>
+                </div>
+
+                <div class="charts-container" style="grid-template-columns: 1fr 1fr;">
+                    <div class="chart-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3>Tax Documents</h3>
+                            <button class="btn" style="padding: 6px 12px; font-size: 0.85rem;">Generate</button>
+                        </div>
+                        <div class="list-item">
+                            <div class="item-left">
+                                <div class="icon-box"><i data-lucide="file"></i></div>
+                                <div>
+                                    <div style="font-weight: 600;">2025 Consolidated 1099</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);">Generated Jan 31, 2026</div>
+                                </div>
+                            </div>
+                            <a href="#" style="color: var(--accent-primary); font-weight: 600; text-decoration: none;">Download</a>
+                        </div>
+                        <div class="list-item">
+                            <div class="item-left">
+                                <div class="icon-box"><i data-lucide="file"></i></div>
+                                <div>
+                                    <div style="font-weight: 600;">2025 Form 8949</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);">Crypto Transactions</div>
+                                </div>
+                            </div>
+                            <a href="#" style="color: var(--accent-primary); font-weight: 600; text-decoration: none;">Download</a>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Tax Burden Projection</h3>
+                        <div style="position: relative; width: 100%; height: 250px;">
+                            <canvas id="taxChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: Settings -->
+            <div id="settings" class="tab-panel">
+                <h1 class="page-title">Account Settings</h1>
+                
+                <div class="charts-container" style="grid-template-columns: 1fr 1fr;">
+                    <div class="chart-card">
+                        <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">Profile Details</h3>
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" id="settings-name" class="form-input" value="User">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-input" value="user@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-input" value="+1 (555) 123-4567">
+                        </div>
+                        <button class="btn">Save Changes</button>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3 style="margin-bottom: 1.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">Security & Preferences</h3>
+                        
+                        <div class="list-item">
+                            <div>
+                                <div style="font-weight: 600;">Two-Factor Authentication</div>
+                                <div style="font-size: 0.85rem; color: var(--text-muted);">Secure your account with 2FA</div>
+                            </div>
+                            <label style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                                <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+                                <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--accent-primary); border-radius: 24px; transition: .4s;">
+                                    <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 22px; bottom: 3px; background-color: white; border-radius: 50%; transition: .4s;"></span>
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <div class="list-item">
+                            <div>
+                                <div style="font-weight: 600;">Email Notifications</div>
+                                <div style="font-size: 0.85rem; color: var(--text-muted);">Receive weekly portfolio updates</div>
+                            </div>
+                            <label style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                                <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+                                <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--accent-primary); border-radius: 24px; transition: .4s;">
+                                    <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 22px; bottom: 3px; background-color: white; border-radius: 50%; transition: .4s;"></span>
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="list-item">
+                            <div>
+                                <div style="font-weight: 600;">Push Notifications</div>
+                                <div style="font-size: 0.85rem; color: var(--text-muted);">Get alerts for large transactions</div>
+                            </div>
+                            <label style="position: relative; display: inline-block; width: 44px; height: 24px;">
+                                <input type="checkbox" style="opacity: 0; width: 0; height: 0;">
+                                <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; border-radius: 24px; transition: .4s;">
+                                    <span style="position: absolute; content: ''; height: 18px; width: 18px; left: 4px; bottom: 3px; background-color: white; border-radius: 50%; transition: .4s;"></span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Mobile Sidebar Toggle
+        const hamburger = document.getElementById('hamburger');
+        const sidebar = document.getElementById('sidebar');
+        const closeSidebar = document.getElementById('close-sidebar');
+
+        hamburger.addEventListener('click', () => {
+            sidebar.classList.add('open');
+        });
+        closeSidebar.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+        });
+
+        // Load User Name
+        const userName = localStorage.getItem('stackly_user_name') || 'User';
+        const desktopName = document.querySelector('.desktop-name');
+        if(desktopName && window.innerWidth > 768) {
+            desktopName.style.display = 'inline';
+        }
+        document.getElementById('user-name').innerText = userName;
+        document.getElementById('greeting-name').innerText = userName;
+        document.getElementById('settings-name').value = userName;
+        document.getElementById('user-avatar').innerText = userName.charAt(0).toUpperCase();
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            // Update Nav Items
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // Update Panels with Animation
+            document.querySelectorAll('.tab-panel').forEach(el => {
+                if (el.classList.contains('active')) {
+                    el.classList.remove('active');
+                }
+            });
+            
+            const target = document.getElementById(tabId);
+            target.classList.add('active');
+            
+            // GSAP Animation
+            gsap.fromTo(target, 
+                { opacity: 0, y: 20 }, 
+                { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }
+            );
+
+            // Close sidebar on mobile
+            if(window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+            }
+        }
+
+        // Initialize Charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // GSAP Initial Entry
+            gsap.from('.stat-card', { opacity: 0, y: 30, stagger: 0.1, duration: 0.6, ease: "back.out(1.7)" });
+            gsap.from('.chart-card', { opacity: 0, y: 30, stagger: 0.1, duration: 0.6, delay: 0.3, ease: "power2.out" });
+
+            // Chart.js Performance Line Chart
+            const ctxLine = document.getElementById('performanceChart');
+            if(ctxLine) {
+                new Chart(ctxLine.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                        datasets: [{
+                            label: 'Portfolio Value',
+                            data: [1000000, 1050000, 1020000, 1150000, 1180000, 1220000, 1284500],
+                            borderColor: '#F47289',
+                            backgroundColor: 'rgba(244, 114, 137, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { border: {display: false}, grid: {color: '#f1f5f9'} },
+                            x: { border: {display: false}, grid: {display: false} }
+                        }
+                    }
+                });
+            }
+
+            // Chart.js Allocation Doughnut
+            const ctxDoughnut = document.getElementById('allocationChart');
+            if(ctxDoughnut) {
+                new Chart(ctxDoughnut.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Real Estate', 'Crypto', 'Equities'],
+                        datasets: [{
+                            data: [66, 19, 15],
+                            backgroundColor: ['#3b82f6', '#F47289', '#10b981'],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '75%',
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+
+            // Historical Chart
+            const ctxHist = document.getElementById('historicalChart');
+            if(ctxHist) {
+                new Chart(ctxHist.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['2021', '2022', '2023', '2024', '2025', '2026'],
+                        datasets: [{
+                            label: 'Growth',
+                            data: [12, -4, 18, 22, 15, 8],
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            // Tax Chart
+            const ctxTax = document.getElementById('taxChart');
+            if(ctxTax) {
+                new Chart(ctxTax.getContext('2d'), {
+                    type: 'pie',
+                    data: {
+                        labels: ['Short Term', 'Long Term', 'Dividends'],
+                        datasets: [{
+                            data: [924, 2775, 450],
+                            backgroundColor: ['#f87171', '#3b82f6', '#eab308']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
